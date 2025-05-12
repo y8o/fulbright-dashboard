@@ -1,4 +1,4 @@
-baseURL = "/"
+baseURL = "https://y8o.github.io/fulbright-dashboard/"
 title = "Fulbright Dashboard"
 theme = "fulbright-theme"
 enableGitInfo = false

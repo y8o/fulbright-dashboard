@@ -27,7 +27,7 @@
 
   <!-- expose CSV path to window.csvPath -->
   <script>
-    window.csvPath = "/fulbright_all_countries.csv";
+    window.csvPath = '{{ "fulbright_all_countries.csv" | relURL }}';
     console.log("CSV path is:", window.csvPath);
   </script>
 
@@ -44,7 +44,7 @@
     <script src="{{ "js/dashboard.js" | relURL }}"></script>
   {{ end }}
   {{ if eq .Section "map" }}
-    <script src="{{ "js/map.js"       | relURL }}"></script>
+    <script src="{{ "js/map.js" | relURL }}"></script>
   {{ end }}
 </body>
 </html>

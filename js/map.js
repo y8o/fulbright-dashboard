@@ -1,9 +1,14 @@
 // Only run on the map page
 if (document.getElementById('map')) {
   // Initialize map
-  const map = L.map('map').setView([20, 0], 2);
+  const map = L.map('map', {
+    worldCopyJump: false,
+    maxBounds: [[-85, -180], [85, 180]],
+    maxBoundsViscosity: 1.0
+  }).setView([20, 0], 2);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+    attribution: '© OpenStreetMap contributors',
+    noWrap: true
   }).addTo(map);
 
   // Helper function to safely parse numbers
@@ -85,6 +90,9 @@ if (document.getElementById('map')) {
 
     const countriesWithProgram = getCountriesWithProgram(data, category);
 
+    // Helper to get all country names in the CSV (for all programs/years)
+    const allCsvCountries = new Set(data.map(row => row.Country));
+
     // Load world boundaries
     fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json')
       .then(response => response.json())
@@ -93,9 +101,11 @@ if (document.getElementById('map')) {
         
         L.geoJSON(countries, {
           style: feature => {
-            const hasProgram = countriesWithProgram.has(feature.properties.name);
+            const countryName = feature.properties.name;
+            const hasProgram = countriesWithProgram.has(countryName);
+            const inCsv = allCsvCountries.has(countryName);
             return {
-              fillColor: hasProgram ? '#3182bd' : '#f0f0f0',
+              fillColor: hasProgram ? '#3182bd' : (inCsv ? '#f0f0f0' : '#fff'),
               fillOpacity: hasProgram ? 0.7 : 0.3,
               weight: 1,
               color: '#666',
@@ -103,25 +113,27 @@ if (document.getElementById('map')) {
             };
           },
           onEachFeature: (feature, layer) => {
-            const hasProgram = countriesWithProgram.has(feature.properties.name);
+            const countryName = feature.properties.name;
+            const hasProgram = countriesWithProgram.has(countryName);
+            const inCsv = allCsvCountries.has(countryName);
+            let tooltipContent = `<strong>${countryName}</strong><br>`;
             if (hasProgram) {
-              const stats = getCountryStats(data, feature.properties.name, category, year);
-              let tooltipContent = `<strong>${feature.properties.name}</strong><br>`;
-              
+              const stats = getCountryStats(data, countryName, category, year);
               if (category === 'other') {
-                // For 'other' category, show all program names
                 tooltipContent += `Programs: ${stats.programs.join(', ')}`;
               } else {
-                // For 'eta', 'open', and 'all', show stats
                 tooltipContent += `
                   Applications: ${stats.applications}<br>
                   Awards: ${stats.awards}<br>
                   Acceptance Rate: ${stats.rate}%
                 `;
               }
-              
-              layer.bindTooltip(tooltipContent);
+            } else if (inCsv) {
+              tooltipContent += `You can apply here! (No applications yet for this program/year)`;
+            } else {
+              tooltipContent += `No data available.`;
             }
+            layer.bindTooltip(tooltipContent);
           }
         }).addTo(map);
       })

@@ -74,7 +74,7 @@ function renderTable() {
     table = $('#data-table').DataTable({
       data: tableData,
       columns: [
-        { title: 'Country' },
+        { title: 'Country', width: '180px' },
         { title: 'Applications', className: 'dt-body-right' },
         { title: 'Awards',       className: 'dt-body-right' },
         { title: 'Acceptance Rate', className: 'dt-body-right' },

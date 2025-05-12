@@ -1,7 +1,10 @@
 # .github/workflows/gh-pages.yml
 name: Publish Hugo site to gh-pages
 
-on:
+permissions:
+  contents: write
+
+  on:
   push:
     branches: [ main ]
 

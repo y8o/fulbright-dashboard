@@ -1,0 +1,5 @@
+body { font-family: Arial, sans-serif; margin: 2rem; }
+h1 { color: #334e59; }
+.filters { margin-bottom: 1rem; }
+label { margin-right: 0.5rem; }
+#data-table { width: 100%; }

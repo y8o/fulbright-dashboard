@@ -1,0 +1,319 @@
+{{ define "main" }}
+<div class="container">
+  <h1>{{ .Title }}</h1>
+<p>Welcome to the Fulbright Dashboard. Use the filters below to explore application and award statistics by country, region, year, and program type. Discover trends and insights about Fulbright programs around the world.</p>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label for="yearSelect">Year:</label>
+      <select id="yearSelect" class="form-control">
+        <option value="2023-2024">2023-2024</option>
+        <option value="2024-2025">2024-2025</option>
+        <option value="2025-2026">2025-2026</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="regionSelect">Region:</label>
+      <select id="regionSelect" class="form-control">
+        <option value="all">All Regions</option>
+        <option value="east-asia-pacific">East Asia-Pacific</option>
+        <option value="europe-eurasia">Europe & Eurasia</option>
+        <option value="middle-east-north-africa">Middle East & North Africa</option>
+        <option value="south-central-asia">South and Central Asia</option>
+        <option value="sub-saharan-africa">Sub-Saharan Africa</option>
+        <option value="western-hemisphere">Western Hemisphere</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="programTypeSelect">Program Type:</label>
+      <select id="programTypeSelect" class="form-control">
+        <option value="all">All Types</option>
+        <option value="open">Open Study/Research</option>
+        <option value="eta">English Teaching Assistant</option>
+        <option value="other">Other Programs</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <h3>Total Applications</h3>
+      <div id="totalApplications" class="stat-number">Loading...</div>
+    </div>
+    <div class="stat-card">
+      <h3>Total Awards</h3>
+      <div id="totalAwards" class="stat-number">Loading...</div>
+    </div>
+    <div class="stat-card">
+      <h3>Average Acceptance Rate</h3>
+      <div id="avgAcceptanceRate" class="stat-number">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="table-container">
+    <table id="fulbrightTable" class="display">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Program</th>
+          <th>Applications</th>
+          <th>Awards</th>
+          <th>Acceptance Rate</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+
+  <!-- Last Updated Date -->
+  <div class="last-updated">
+    <p>Data last updated: <span id="lastUpdatedDate">Loading...</span></p>
+  </div>
+</div>
+
+<script>
+// Region mapping
+const regionMapping = {
+  'east-asia-pacific': [
+    'Australia', 'Cambodia', 'Fiji', 'Indonesia', 'Japan', 'Kiribati', 'Laos', 'Malaysia',
+    'Mongolia', 'Nauru', 'New Zealand', 'Papua New Guinea', 'Philippines', 'Samoa', 'Singapore',
+    'Solomon Islands', 'South Korea', 'Taiwan', 'Thailand', 'Timor-Leste', 'Tonga', 'Tuvalu',
+    'Vanuatu', 'Vietnam'
+  ],
+  'europe-eurasia': [
+    'Albania', 'Andorra', 'Armenia', 'Austria', 'Azerbaijan', 'Belarus', 'Belgium',
+    'Bosnia & Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark',
+    'Estonia', 'European Union', 'Finland', 'France', 'Georgia', 'Germany', 'Greece',
+    'Hungary', 'Iceland', 'Ireland', 'Italy', 'Kosovo', 'Latvia', 'Lithuania', 'Luxembourg',
+    'Malta', 'Moldova', 'Montenegro', 'Netherlands', 'North Macedonia', 'Norway', 'Poland',
+    'Portugal', 'Romania', 'Serbia', 'Slovak Republic', 'Slovenia', 'Spain', 'Sweden',
+    'Switzerland', 'Turkey (Türkiye)', 'Ukraine', 'United Kingdom'
+  ],
+  'middle-east-north-africa': [
+    'Algeria', 'Bahrain', 'Egypt', 'Israel', 'Jordan', 'Kuwait', 'Morocco', 'Oman',
+    'Palestinian Territories (West Bank)', 'Saudi Arabia', 'Tunisia', 'United Arab Emirates'
+  ],
+  'south-central-asia': [
+    'India', 'Kazakhstan', 'Kyrgyz Republic', 'Nepal', 'Sri Lanka', 'Tajikistan', 'Uzbekistan'
+  ],
+  'sub-saharan-africa': [
+    'Benin', 'Botswana', 'Burkina Faso', 'Cameroon', 'Congo (Brazzaville)', 'Cote d\'Ivoire',
+    'Eswatini', 'Ethiopia', 'Ghana', 'Guinea', 'Kenya', 'Lesotho', 'Madagascar', 'Malawi',
+    'Mauritius', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Senegal',
+    'Sierra Leone', 'South Africa', 'Tanzania', 'Togo', 'Uganda', 'Zambia', 'Zimbabwe'
+  ],
+  'western-hemisphere': [
+    'Antigua and Barbuda', 'Argentina', 'Barbados and the Eastern Caribbean', 'Bolivia',
+    'Brazil', 'Canada', 'Chile', 'Colombia', 'Costa Rica', 'Dominica', 'Dominican Republic',
+    'Ecuador', 'El Salvador', 'Grenada', 'Guatemala', 'Honduras', 'Jamaica', 'Mexico',
+    'Nicaragua', 'Panama', 'Paraguay', 'Peru', 'Saint Vincent and the Grenadines',
+    'St. Kitts & Nevis', 'St. Lucia', 'Trinidad & Tobago', 'Uruguay'
+  ]
+};
+
+// Categorize program type
+function categorize(name) {
+  const n = name.toLowerCase();
+  if (n.includes('teaching assistant') || n.includes('debate coach'))   return 'eta';
+  if (n.includes('open study') || n.includes('open research'))         return 'open';
+  return 'other';
+}
+
+// Helper function to get region for a country
+function getRegionForCountry(country) {
+  for (const [region, countries] of Object.entries(regionMapping)) {
+    if (countries.includes(country)) {
+      return region;
+    }
+  }
+  return 'unknown';
+}
+
+// Helper function to safely parse numbers
+function safeParseInt(value) {
+  if (value === '*' || value === '' || value === null || value === undefined) return 0;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!window.csvPath) {
+    console.error('CSV path not found. Make sure window.csvPath is set in baseof.html');
+    return;
+  }
+  console.log('Loading CSV from:', window.csvPath);
+
+  Papa.parse(window.csvPath, {
+    download: true,
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+    transformHeader: header => header.trim(),
+    transform: value => value.trim(),
+    complete: results => {
+      if (results.errors.length > 0) {
+        console.error('CSV parsing errors:', results.errors);
+        console.log('First few rows of data:', results.data.slice(0, 3));
+        return;
+      }
+      console.log('CSV loaded successfully:', results.data.length, 'rows');
+      console.log('Sample row:', results.data[0]);
+
+      // Get the last modified date of the CSV file
+      fetch(window.csvPath, { method: 'HEAD' })
+        .then(response => {
+          const lastModified = response.headers.get('last-modified');
+          if (lastModified) {
+            document.getElementById('lastUpdatedDate').textContent = new Date(lastModified).toLocaleDateString();
+          }
+        })
+        .catch(error => {
+          console.error('Error getting file date:', error);
+          document.getElementById('lastUpdatedDate').textContent = 'Unknown';
+        });
+
+      // Helper to build table data for a given year/type
+      function buildTableData(year, programType) {
+        let rows = results.data.map(row => {
+          const applications = safeParseInt(row[`${year} Applications`]);
+          const awards = safeParseInt(row[`${year} Awards`]);
+          const rate = applications > 0 ? (awards / applications * 100).toFixed(1) : '0.0';
+          const type = categorize(row.Scholarship);
+          return {
+            country: row.Country,
+            program: row.Scholarship,
+            applications: applications,
+            awards: awards,
+            rate: rate,
+            region: getRegionForCountry(row.Country),
+            type: type
+          };
+        });
+        return rows;
+      }
+
+      // Aggregation for country-only view
+      function aggregateByCountry(rows) {
+        const agg = {};
+        rows.forEach(row => {
+          if (!agg[row.country]) {
+            agg[row.country] = { country: row.country, applications: 0, awards: 0 };
+          }
+          agg[row.country].applications += row.applications;
+          agg[row.country].awards += row.awards;
+        });
+        // Add acceptance rate
+        return Object.values(agg).map(row => {
+          row.rate = row.applications > 0 ? (row.awards / row.applications * 100).toFixed(1) : '0.0';
+          return row;
+        });
+      }
+
+      // Initialize table and stats
+      function renderTableAndStats() {
+        const year = document.getElementById('yearSelect').value;
+        const region = document.getElementById('regionSelect').value;
+        const programType = document.getElementById('programTypeSelect').value;
+        let rows = buildTableData(year, programType);
+        if (region !== 'all') {
+          rows = rows.filter(row => row.region === region);
+        }
+        let tableData, columns;
+        if (programType === 'all') {
+          tableData = aggregateByCountry(rows);
+          columns = [
+            { data: 'country', title: 'Country' },
+            { data: 'applications', title: 'Applications' },
+            { data: 'awards', title: 'Awards' },
+            { data: 'rate', title: 'Acceptance Rate', render: data => `${data}%` }
+          ];
+        } else {
+          rows = rows.filter(row => row.type === programType);
+          tableData = rows;
+          columns = [
+            { data: 'country', title: 'Country' },
+            { data: 'program', title: 'Program' },
+            { data: 'applications', title: 'Applications' },
+            { data: 'awards', title: 'Awards' },
+            { data: 'rate', title: 'Acceptance Rate', render: data => `${data}%` }
+          ];
+        }
+        // Dynamically update the table header
+        const thead = document.querySelector('#fulbrightTable thead tr');
+        thead.innerHTML = '';
+        columns.forEach(col => {
+          const th = document.createElement('th');
+          th.textContent = col.title || '';
+          thead.appendChild(th);
+        });
+        if ($.fn.dataTable.isDataTable('#fulbrightTable')) {
+          $('#fulbrightTable').DataTable().clear().destroy();
+        }
+        $('#fulbrightTable').DataTable({
+          data: tableData,
+          columns: columns,
+          order: [[0, 'asc']],
+          pageLength: 10
+        });
+        updateStats(tableData);
+      }
+
+      // Update statistics
+      function updateStats(filteredData) {
+        const totalApps = filteredData.reduce((sum, row) => sum + row.applications, 0);
+        const totalAwards = filteredData.reduce((sum, row) => sum + row.awards, 0);
+        const avgRate = totalApps > 0 ? (totalAwards / totalApps * 100).toFixed(1) : '0.0';
+        document.getElementById('totalApplications').textContent = totalApps.toLocaleString();
+        document.getElementById('totalAwards').textContent = totalAwards.toLocaleString();
+        document.getElementById('avgAcceptanceRate').textContent = `${avgRate}%`;
+      }
+
+      // Initial render
+      renderTableAndStats();
+
+      // Unified filter handler
+      function filterAndUpdate() {
+        renderTableAndStats();
+      }
+      document.getElementById('yearSelect').addEventListener('change', filterAndUpdate);
+      document.getElementById('regionSelect').addEventListener('change', filterAndUpdate);
+      document.getElementById('programTypeSelect').addEventListener('change', filterAndUpdate);
+    }
+  });
+});
+</script>
+
+<style>
+.filters {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: bold;
+}
+
+.filter-group select {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.last-updated {
+  margin-top: 20px;
+  padding: 10px;
+  text-align: right;
+  color: #666;
+  font-style: italic;
+}
+</style>
+{{ end }} 

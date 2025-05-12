@@ -1,17 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ .Title }} - {{ .Site.Title }}</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ .Title }} – {{ .Site.Title }}</title>
+
+  <!-- Site CSS via relURL -->
+  <link rel="stylesheet" href="{{ "css/style.css" | relURL }}" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
+  <!-- Navigation -->
+  <nav class="main-nav">
+    {{ $curr := .Page.RelPermalink }}
+    {{ range .Site.Menus.main }}
+      <a href="{{ .URL | relURL }}"
+         {{ if eq .URL $curr }}class="active"{{ end }}>
+         {{ .Name }}
+      </a>
+    {{ end }}
+  </nav>
+
+  <!-- Main content -->
   {{ block "main" . }}{{ end }}
+
+  <!-- expose CSV path to window.csvPath -->
+  <script>
+    window.csvPath = "/fulbright_all_countries.csv";
+    console.log("CSV path is:", window.csvPath);
+  </script>
+
+  <!-- Dependencies -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- Page-specific scripts -->
+  {{ if eq .Section "statistics" }}
+    <script src="{{ "js/dashboard.js" | relURL }}"></script>
+  {{ end }}
+  {{ if eq .Section "map" }}
+    <script src="{{ "js/map.js"       | relURL }}"></script>
+  {{ end }}
 </body>
 </html>

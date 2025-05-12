@@ -1,29 +1,24 @@
 {{ define "main" }}
-<h1>Fulbright Dashboard</h1>
-<div class="filters">
-  <label for="yearSelect">Year:</label>
-  <select id="yearSelect">
-    <option value="2023-2024">2023-2024</option>
-    <option value="2024-2025">2024-2025</option>
-    <option value="2025-2026">2025-2026</option>
-  </select>
-  <label for="catSelect">Category:</label>
-  <select id="catSelect">
-    <option value="all">All</option>
-    <option value="eta">English Teaching</option>
-    <option value="open">Open Study</option>
-    <option value="other">Other Programs</option>
-  </select>
-</div>
-<table id="data-table" class="display" style="width:100%">
-  <thead>
-    <tr>
-      <th>Country</th>
-      <th>Applications</th>
-      <th>Awards</th>
-      <th>Acceptance Rate</th>
-    </tr>
-  </thead>
-</table>
-<script src="/js/dashboard.js"></script>
+  <h1>Fulbright Dashboard</h1>
+
+  <div class="filters">
+    <label for="yearSelect">Year:</label>
+    <select id="yearSelect">
+      <option>2023-2024</option>
+      <option>2024-2025</option>
+      <option>2025-2026</option>
+    </select>
+
+    <label for="catSelect">Category:</label>
+    <select id="catSelect">
+      <option value="all">All</option>
+      <option value="eta">English Teaching</option>
+      <option value="open">Open Study</option>
+      <option value="other">Other Programs</option>
+    </select>
+  </div>
+
+  <table id="data-table" class="display" style="width:100%"></table>
+
+  <script src="/js/dashboard.js"></script>
 {{ end }}

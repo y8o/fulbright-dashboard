@@ -1,23 +1,25 @@
 {{ define "main" }}
-  <h1>{{ .Title }}</h1>
-  <p>The interactive map below shows Fulbright program coverage around the world. Use the filters to view which countries offer English Teaching Assistantships, Open Study/Research, or other Fulbright programs for each academic year.</p>
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+    <p>The interactive map below shows Fulbright program coverage around the world. Use the filters to view which countries offer English Teaching Assistantships, Open Study/Research, or other Fulbright programs for each academic year.</p>
 
-  <div class="filters">
-    <label for="catSelectMap">Program:</label>
-    <select id="catSelectMap">
-      <option value="all">All Programs</option>
-      <option value="eta">English Teaching Assistants</option>
-      <option value="open">Open Study/Research</option>
-      <option value="other">Other Programs</option>
-    </select>
+    <div class="filters">
+      <label for="catSelectMap">Program:</label>
+      <select id="catSelectMap">
+        <option value="all">All Programs</option>
+        <option value="eta">English Teaching Assistants</option>
+        <option value="open">Open Study/Research</option>
+        <option value="other">Other Programs</option>
+      </select>
 
-    <label for="yearSelectMap" style="margin-left: 20px;">Year:</label>
-    <select id="yearSelectMap">
-      <option value="2023-2024">2023-2024</option>
-      <option value="2024-2025">2024-2025</option>
-      <option value="2025-2026">2025-2026</option>
-    </select>
+      <label for="yearSelectMap" style="margin-left: 20px;">Year:</label>
+      <select id="yearSelectMap">
+        <option value="2023-2024">2023-2024</option>
+        <option value="2024-2025">2024-2025</option>
+        <option value="2025-2026">2025-2026</option>
+      </select>
+    </div>
+
+    <div id="map" style="height:600px;"></div>
   </div>
-
-  <div id="map" style="height:600px; border:1px solid #ccc;"></div>
 {{ end }}

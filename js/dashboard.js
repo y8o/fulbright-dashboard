@@ -15,7 +15,7 @@ let table;
 // Load CSV on page load
 document.addEventListener('DOMContentLoaded', () => {
   console.log("📥 Loading CSV…");
-  Papa.parse('fulbright_all_countries.csv', {
+  Papa.parse(window.csvPath, {
     header: true,
     download: true,
     skipEmptyLines: true,

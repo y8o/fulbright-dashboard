@@ -2,3 +2,15 @@ baseURL = "https://y8o.github.io/fulbright-dashboard/"
 title = "Fulbright Dashboard"
 theme = "fulbright-theme"
 enableGitInfo = false
+
+[menu]
+
+  [[menu.main]]
+  name = "Home"
+  url = ""
+  weight = 1
+
+  [[menu.main]]
+  name = "Map"
+  url = "map"
+  weight = 2

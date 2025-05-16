@@ -33,6 +33,12 @@ The Fulbright Dashboard is an interactive web application for exploring Fulbrigh
 
 3. **CSV Data:**
     - The dashboard loads its data from `static/fulbright_all_countries.csv`. Update this file to refresh the data.
+    - To automatically download and update the data, use the `data_scraping.py` script which uses Selenium to scrape the latest data from the Fulbright website. The script requires:
+      - Python 3.x
+      - Selenium WebDriver
+      - ChromeDriver (for Chrome browser)
+      - Required Python packages: `selenium`, `pandas`
+    - Run the script using: `python data_scraping.py`
 
 ## Project Structure
 

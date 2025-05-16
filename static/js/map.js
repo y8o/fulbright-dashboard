@@ -146,6 +146,18 @@ if (document.getElementById('map')) {
   if (!window.csvPath) {
     console.error('CSV path not found. Make sure window.csvPath is set in baseof.html');
   } else {
+    // Create data update timestamp element
+    const updateInfo = document.createElement('div');
+    updateInfo.className = 'map-update-info';
+    updateInfo.style.position = 'absolute';
+    updateInfo.style.bottom = '10px';
+    updateInfo.style.left = '10px';
+    updateInfo.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+    updateInfo.style.padding = '5px 10px';
+    updateInfo.style.borderRadius = '4px';
+    updateInfo.style.fontSize = '12px';
+    updateInfo.style.zIndex = '1000';
+    document.getElementById('map').appendChild(updateInfo);
     console.log('Loading CSV from:', window.csvPath);
 
     Papa.parse(window.csvPath, {

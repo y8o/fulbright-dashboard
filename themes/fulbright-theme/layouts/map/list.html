@@ -21,5 +21,26 @@
     </div>
 
     <div id="map" style="height:600px;"></div>
+    <div class="last-updated">
+      <p>Data last updated: <span id="lastUpdatedDate">Loading...</span></p>
+    </div>
+    <script>
+      // Update the last updated date based on CSV file's last modified date
+      fetch('{{ "fulbright_all_countries.csv" | relURL }}', { method: 'HEAD' })
+        .then(response => {
+          const lastModified = response.headers.get('last-modified');
+          if (lastModified) {
+            document.getElementById('lastUpdatedDate').textContent = new Date(lastModified).toLocaleDateString();
+          } else {
+            // Fallback to a fixed date if we can't get the last modified date
+            document.getElementById('lastUpdatedDate').textContent = 'May 15, 2025';
+          }
+        })
+        .catch(error => {
+          console.error('Error getting file date:', error);
+          // Fallback to a fixed date if there's an error
+          document.getElementById('lastUpdatedDate').textContent = 'May 15, 2025';
+        });
+    </script>
   </div>
 {{ end }}

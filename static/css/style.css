@@ -182,6 +182,13 @@ table.dataTable td:first-child {
   border: 2.5px solid #5fa8d3;
 }
 
+.last-updated {
+  text-align: right;
+  margin-top: 1rem;
+  font-style: italic;
+  color: #6c757d;
+}
+
 /* Responsive tweaks */
 @media (max-width: 800px) {
   .container { padding: 1rem; }

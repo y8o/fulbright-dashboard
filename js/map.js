@@ -160,6 +160,22 @@ if (document.getElementById('map')) {
     document.getElementById('map').appendChild(updateInfo);
     console.log('Loading CSV from:', window.csvPath);
 
+    // Fetch the CSV file to get its last modified date
+    fetch(window.csvPath, {
+      method: 'HEAD'
+    })
+    .then(response => {
+      const lastModified = response.headers.get('Last-Modified');
+      const date = new Date(lastModified);
+      const updateInfo = document.querySelector('.map-update-info');
+      if (updateInfo) {
+        updateInfo.textContent = `Data last updated: ${date.toLocaleDateString()}`;
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching CSV headers:', error);
+    });
+
     Papa.parse(window.csvPath, {
       download: true,
       header: true,
@@ -175,6 +191,13 @@ if (document.getElementById('map')) {
           console.log('CSV loaded successfully:', results.data.length, 'rows');
           console.log('Sample row:', results.data[0]);
           window.fulbrightData = results.data;
+          
+          // Set data update timestamp
+          const updateInfo = document.querySelector('.map-update-info');
+          if (updateInfo) {
+            const csvDate = new Date();
+            updateInfo.textContent = `Data last updated: ${csvDate.toLocaleDateString()}`;
+          }
           
           // Initial map update
           const initialYear = document.getElementById('yearSelectMap').value;

@@ -1,6 +1,6 @@
 # Fulbright Statistics Dashboard
 
-The Fulbright Dashboard is an interactive web application for exploring Fulbright program statistics and global coverage. Users can analyze applications, awards, and acceptance rates by country, region, year, and program type, as well as visualize program availability on a world map.
+The Fulbright Dashboard is an interactive web application for exploring Fulbright program statistics and global coverage. Users can analyze applications, awards, and acceptance rates by country, region, year, and program type, as well as visualize program availability on a world map, whereas the original website does not allow users to easily compare statistics between different countries or view them all at once.
 
 ## Features
 
